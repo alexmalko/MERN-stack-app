@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 
 // import routes from the places-routes file
 const placesRoutes = require("./routes/places-routes");
+const userRoutes = require("./routes/users-routes");
 // error handling class
 const HttpError = require("./models/http-error");
 
@@ -15,6 +16,7 @@ app.use(bodyParser.json());
 
 // .use serves all the req, res throught the placesRoutes middleware
 app.use("/api/places", placesRoutes);
+app.use("/api/users", userRoutes);
 
 // middleware for the unreachables URLS
 app.use((req, res, next) => {

@@ -7,16 +7,16 @@ const router = express.Router();
 
 // go to the route specified in the app.js prepend in this case /api/places/id which is dynamic based on what user entered.
 // req, res, next => next will pass the req/res to the next middleware
-router.get("/:pid", placesControllers.getPlaceById);
+router.get("/:pid", placesControllers.getPlacesById);
 
 // user/uid route
-router.get("/user/:uid", placesControllers.getUserById);
+router.get("/user/:uid", placesControllers.getPlacesByUserId);
 
 // post request route
 router.post("/", placesControllers.createPlace);
 
 // update places route
-router.delete("/:pid", placesControllers.updatePlase);
+router.patch("/:pid", placesControllers.updatePlace);
 
 // delete places route
 router.delete("/:pid", placesControllers.deletePlace);

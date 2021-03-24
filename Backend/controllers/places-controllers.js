@@ -3,7 +3,8 @@ const uuid = require("uuid");
 // error handling class
 const HttpError = require("../models/http-error");
 
-const DUMMY_PLACES = [
+// dummy array of data for testing
+let DUMMY_PLACES = [
   {
     id: "p1",
     title: "USA",
@@ -14,11 +15,18 @@ const DUMMY_PLACES = [
     id: "p2",
     title: "minsk",
     location: "belarus",
+    creator: "u1",
+  },
+  {
+    id: "p3",
+    title: "minsk",
+    location: "belarus",
     creator: "u2",
   },
 ];
 
-const getPlaceById = (req, res, next) => {
+// get one record
+const getPlacesById = (req, res, next) => {
   // extract ID from the url and store to placeID variable
   const placeId = req.params.pid;
   // find extracted ID in the Dummy_Places array
@@ -32,23 +40,23 @@ const getPlaceById = (req, res, next) => {
   // respond with found object in JSON format
   res.json({ place });
 };
-
-const getUserById = (req, res, next) => {
+// get one user record
+const getPlacesByUserId = (req, res, next) => {
   // extract ID from the url and store to userID variable
   const userId = req.params.uid;
-
-  const place = DUMMY_PLACES.find((p) => {
+  // return a list of places for the user
+  const places = DUMMY_PLACES.filter((p) => {
     return p.creator === userId;
   });
   // error handling if place by id is not found
-  if (!place) {
+  if (!places) {
     return next(
-      new HttpError("Could not fnd a users for the provided ID", 404)
+      new HttpError("Could not find places for the provided ID", 404)
     );
   }
-  res.json({ place });
+  res.json({ places });
 };
-
+// create a new place
 const createPlace = (req, res, next) => {
   // get data from the user input
   const { id, title, location, creator } = req.body;
@@ -64,21 +72,35 @@ const createPlace = (req, res, next) => {
 
   res.status(201).json({ place: createPlace });
 };
-
-const updatePlase = (req, res, next) => {
+// update existing place
+const updatePlace = (req, res, next) => {
   // get data from the user input
   const { title, location } = req.body;
   // extract ID from the url and store to placeID variable
   const placeId = req.params.pid;
   // find extracted ID in the Dummy_Places array
-  const updatedPlace = DUMMY_PLACES.find((p) => p.id === placeId);
+  const updatedPlace = { ...DUMMY_PLACES.find((p) => p.id === placeId) };
+  const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
+  updatedPlace.title = title;
+  updatedPlace.location = location;
+
+  DUMMY_PLACES[placeIndex] = updatedPlace;
+
+  res.status(200).json({ place: updatedPlace });
+};
+// delete a place
+const deletePlace = (req, res, next) => {
+  // extract ID from the url and store to placeID variable
+  const placeId = req.params.pid;
+  //  delete specific record
+  DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId);
+
+  res.status(200).json({ message: "record has been deleted" });
 };
 
-const deletePlace = (req, res, next) => {};
-
-// exporting multple files
-exports.getPlaceById = getPlaceById;
-exports.getUserById = getUserById;
+// exporting multiple files
+exports.getPlacesById = getPlacesById;
+exports.getPlacesByUserId = getPlacesByUserId;
 exports.createPlace = createPlace;
-exports.updatePlase = updatePlase;
+exports.updatePlace = updatePlace;
 exports.deletePlace = deletePlace;
