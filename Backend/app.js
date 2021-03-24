@@ -1,5 +1,5 @@
 const express = require("express");
-// middleware to parse form data
+// middleware to parse data from input
 const bodyParser = require("body-parser");
 
 // import routes from the places-routes file

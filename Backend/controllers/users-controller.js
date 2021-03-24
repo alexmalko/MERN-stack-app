@@ -1,4 +1,6 @@
 const uuid = require("uuid");
+// library to validate user inputs
+const { validationResult } = require("express-validator");
 
 // error handling class
 const HttpError = require("../models/http-error");
@@ -33,6 +35,11 @@ const getUsers = (req, res, next) => {
 
 // SIGNUP
 const signup = (req, res, next) => {
+  // middleware to validate user inputs
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new HttpError("Invalit inputs passed", 422);
+  }
   // get data from the user input
   const { id, name, email, password } = req.body;
 

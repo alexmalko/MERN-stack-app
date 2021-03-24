@@ -1,30 +1,41 @@
 const uuid = require("uuid");
+// library to validate user inputs
+const { validationResult } = require("express-validator");
 
 // error handling class
 const HttpError = require("../models/http-error");
+const getCoordinates = require("../util/location");
 
 // dummy array of data for testing
 let DUMMY_PLACES = [
   {
     id: "p1",
     title: "USA",
-    location: "belarus",
+    address: "belarus",
     creator: "u1",
+    location: {
+      coordinates: "hello",
+    },
   },
   {
     id: "p2",
-    title: "minsk",
-    location: "belarus",
+    title: "USA",
+    address: "belarus",
     creator: "u1",
+    location: {
+      coordinates: "hello",
+    },
   },
   {
     id: "p3",
-    title: "minsk",
-    location: "belarus",
-    creator: "u2",
+    title: "USA",
+    address: "belarus",
+    creator: "u1",
+    location: {
+      coordinates: "hello",
+    },
   },
 ];
-
 // get one record
 const getPlacesById = (req, res, next) => {
   // extract ID from the url and store to placeID variable
@@ -57,14 +68,29 @@ const getPlacesByUserId = (req, res, next) => {
   res.json({ places });
 };
 // create a new place
-const createPlace = (req, res, next) => {
+const createPlace = async (req, res, next) => {
+  // middleware to validate user inputs
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new HttpError("Invalit inputs passed", 422));
+  }
   // get data from the user input
-  const { id, title, location, creator } = req.body;
+  const { id, title, address, creator } = req.body;
+
+  // fetch coordinates from the google API
+  let coordinates;
+  try {
+    coordinates = await getCoordinates(address);
+  } catch (error) {
+    return next(error);
+  }
+
   // create new place
   const createPlace = {
     id,
     title,
-    location,
+    address,
+    location: coordinates,
     creator,
   };
 
@@ -74,6 +100,11 @@ const createPlace = (req, res, next) => {
 };
 // update existing place
 const updatePlace = (req, res, next) => {
+  // middleware to validate user inputs
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new HttpError("Invalit inputs passed", 422);
+  }
   // get data from the user input
   const { title, location } = req.body;
   // extract ID from the url and store to placeID variable
@@ -92,6 +123,10 @@ const updatePlace = (req, res, next) => {
 const deletePlace = (req, res, next) => {
   // extract ID from the url and store to placeID variable
   const placeId = req.params.pid;
+  // check if place exist before trying to delete
+  if (!DUMMY_PLACES.find((p) => p.id === placeId)) {
+    throw new HttpError("Could not find a place for the provided ID", 404);
+  }
   //  delete specific record
   DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId);
 

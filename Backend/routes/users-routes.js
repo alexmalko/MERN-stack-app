@@ -1,5 +1,8 @@
 const express = require("express");
+// library to validate user inputs
+const { check } = require("express-validator");
 
+// imports routes logic
 const usersControllers = require("../controllers/users-controller");
 
 // middleware for routes
@@ -9,8 +12,16 @@ const router = express.Router();
 // req, res, next => next will pass the req/res to the next middleware
 router.get("/", usersControllers.getUsers);
 
-// post request route
-router.post("/signup", usersControllers.signup);
+// post request route with validation logic
+router.post(
+  "/signup",
+  [
+    check("name").not().isEmpty(),
+    check("email").normalizeEmail().isEmail(),
+    check("password").isLength({ min: 6 }),
+  ],
+  usersControllers.signup
+);
 
 // update places route
 router.post("/login", usersControllers.login);
