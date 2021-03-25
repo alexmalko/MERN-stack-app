@@ -67,7 +67,7 @@ const getPlacesByUserId = (req, res, next) => {
   }
   res.json({ places });
 };
-// create a new place
+// create a new place with a fetch request to a google API
 const createPlace = async (req, res, next) => {
   // middleware to validate user inputs
   const errors = validationResult(req);
